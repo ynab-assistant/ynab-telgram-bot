@@ -5,3 +5,6 @@ build:
 
  run: build
 	./bin/bot
+
+tidy:
+	go mod tidy
