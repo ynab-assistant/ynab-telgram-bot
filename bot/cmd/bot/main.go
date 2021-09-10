@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/oneils/ynab-helper/bot/pkg/telegram"
 )
 
@@ -16,6 +16,8 @@ func main() {
 	if err != nil {
 		log.Fatal("error while creating Telegram Bot API: ", err)
 	}
+
+	tgbotapi.Debug = true
 
 	bot := telegram.NewBot(tgbotapi, log)
 

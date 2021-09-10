@@ -3,7 +3,7 @@ package telegram
 import (
 	"log"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 type Bot struct {
@@ -16,32 +16,36 @@ func NewBot(bot *tgbotapi.BotAPI, log *log.Logger) *Bot {
 }
 
 func (b *Bot) Start() error {
-	bot := b.bot
 
-	bot.Debug = true
+	updates := b.initUpdatesChannel()
 
-	b.log.Printf("Authorized on account %s", bot.Self.UserName)
+	b.handleUdate(updates)
 
-	u := tgbotapi.NewUpdate(0)
-	u.Timeout = 60
+	return nil
+}
 
-	updates, err := bot.GetUpdatesChan(u)
-	if err != nil {
-		return err
-	}
-
+func (b *Bot) handleUdate(updates tgbotapi.UpdatesChannel) {
 	for update := range updates {
 		if update.Message == nil { // ignore any non-Message Updates
 			continue
 		}
 
-		b.log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+		if update.Message.IsCommand() {
+			if err := b.handleCommand(update.Message); err != nil {
+				b.log.Printf("error while handling a command: %s. Error: %v", update.Message.Command(), err)
+			}
+			continue
+		}
 
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
-		msg.ReplyToMessageID = update.Message.MessageID
-
-		bot.Send(msg)
+		b.handleMessage(update.Message)
 	}
+}
 
-	return nil
+func (b *Bot) initUpdatesChannel() tgbotapi.UpdatesChannel {
+	b.log.Printf("Authorized on account %s", b.bot.Self.UserName)
+
+	u := tgbotapi.NewUpdate(0)
+	u.Timeout = 60
+
+	return b.bot.GetUpdatesChan(u)
 }
