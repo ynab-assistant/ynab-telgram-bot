@@ -1,27 +1,11 @@
 package main
 
 import (
-	"log"
-	"os"
-
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/oneils/ynab-helper/bot/pkg/telegram"
+	"github.com/oneils/ynab-helper/bot/pkg/app"
 )
 
+const configPath = "configs/main"
+
 func main() {
-
-	log := log.New(os.Stdout, "BOT : ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
-
-	tgbotapi, err := tgbotapi.NewBotAPI("TOKEN")
-	if err != nil {
-		log.Fatal("error while creating Telegram Bot API: ", err)
-	}
-
-	tgbotapi.Debug = true
-
-	bot := telegram.NewBot(tgbotapi, log)
-
-	if err := bot.Start(); err != nil {
-		log.Fatalf(" error while starting the bot: %v", err)
-	}
+	app.Run(configPath)
 }

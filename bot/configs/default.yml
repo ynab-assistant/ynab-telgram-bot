@@ -1,0 +1,9 @@
+telegram:
+  token: "TOKEN"
+
+
+mongo:
+  name: "ynab-helper"
+  uri: "mongodb://mongo:27017"
+  user: "root"
+  password: "root"

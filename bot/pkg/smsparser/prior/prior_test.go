@@ -257,14 +257,14 @@ func TestParse_factoryFunction(t *testing.T) {
 	log := log.New(os.Stdout, "prefix ", 0)
 	expectedPrior := &Prior{log}
 
-	p := NewPrior(log)
+	p := New(log)
 
 	assert.Equal(t, expectedPrior, p)
 }
 
 func Test_parseValue(t *testing.T) {
 	log := log.New(os.Stdout, "prefix ", 0)
-	p := NewPrior(log)
+	p := New(log)
 
 	result := p.parseValue("text_without_spaces", 2)
 
@@ -273,7 +273,7 @@ func Test_parseValue(t *testing.T) {
 
 func Test_parseCompositeValue(t *testing.T) {
 	log := log.New(os.Stdout, "prefix ", 0)
-	p := NewPrior(log)
+	p := New(log)
 
 	result := p.parseCompositeValue("text_without_spaces", 2, 3)
 
@@ -281,7 +281,7 @@ func Test_parseCompositeValue(t *testing.T) {
 }
 func Test_getCountryCodeAndPayee(t *testing.T) {
 	log := log.New(os.Stdout, "prefix ", 0)
-	p := NewPrior(log)
+	p := New(log)
 
 	code, payee := p.getCountryCodeAndPayee("text", 4)
 

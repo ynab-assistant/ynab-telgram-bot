@@ -12,7 +12,10 @@ type Bot struct {
 }
 
 func NewBot(bot *tgbotapi.BotAPI, log *log.Logger) *Bot {
-	return &Bot{bot: bot, log: log}
+	return &Bot{
+		bot: bot,
+		log: log,
+	}
 }
 
 func (b *Bot) Start() error {

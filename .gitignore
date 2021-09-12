@@ -19,3 +19,8 @@ private/
 bin/
 
 .idea/
+.DS_Store
+
+.env
+
+bot/configs/main.yml
