@@ -253,11 +253,38 @@ func TestParse_happyPath(t *testing.T) {
 
 }
 
-func TestParse(t *testing.T) {
+func TestParse_factoryFunction(t *testing.T) {
 	log := log.New(os.Stdout, "prefix ", 0)
 	expectedPrior := &Prior{log}
 
 	p := NewPrior(log)
 
 	assert.Equal(t, expectedPrior, p)
+}
+
+func Test_parseValue(t *testing.T) {
+	log := log.New(os.Stdout, "prefix ", 0)
+	p := NewPrior(log)
+
+	result := p.parseValue("text_without_spaces", 2)
+
+	assert.Empty(t, result)
+}
+
+func Test_parseCompositeValue(t *testing.T) {
+	log := log.New(os.Stdout, "prefix ", 0)
+	p := NewPrior(log)
+
+	result := p.parseCompositeValue("text_without_spaces", 2, 3)
+
+	assert.Empty(t, result)
+}
+func Test_getCountryCodeAndPayee(t *testing.T) {
+	log := log.New(os.Stdout, "prefix ", 0)
+	p := NewPrior(log)
+
+	code, payee := p.getCountryCodeAndPayee("text", 4)
+
+	assert.Empty(t, code)
+	assert.Empty(t, payee)
 }

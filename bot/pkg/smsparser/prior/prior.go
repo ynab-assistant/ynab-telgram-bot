@@ -56,12 +56,14 @@ func (p *Prior) Parse(text string) (smsparser.SmsMessage, error) {
 	msg.BankName = chunks[0]
 
 	// line with card number and transaction date is valid
+	// Karta 4***3345 10-09-2021 15:40:19
 	if lineValid(chunks[1], 4) {
 		msg.CardNumber = p.parseValue(chunks[1], cardNumberIndx)
 		msg.Transaction.Date = p.parseCompositeValue(chunks[1], transactionDateIndx, transactionTimeIndx)
 	}
 
 	// line with transaction type, amount and currency is valid
+	// Oplata 38.96 BYN
 	if lineValid(chunks[2], 3) {
 		msg.Transaction.Type = p.parseValue(chunks[2], transactionTypeIndx)
 		msg.Amount = p.getAmount(chunks[2], amountIndx)
@@ -83,8 +85,8 @@ func (p *Prior) Parse(text string) (smsparser.SmsMessage, error) {
 	return msg, nil
 }
 
-func lineValid(text string, requiredLength int) bool {
-	return len(strings.Split(text, " ")) >= requiredLength
+func lineValid(text string, minLength int) bool {
+	return len(strings.Split(text, " ")) >= minLength
 }
 
 func (p *Prior) parseValue(text string, valueIndex int) string {

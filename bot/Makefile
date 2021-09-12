@@ -15,3 +15,6 @@ test:
 
 test.coverage:
 	go tool cover -func=cover.out
+
+test.coverage.html:
+	go tool cover -html=cover.out
