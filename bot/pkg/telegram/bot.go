@@ -4,17 +4,20 @@ import (
 	"log"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/oneils/ynab-helper/bot/pkg/transaction"
 )
 
 type Bot struct {
 	bot *tgbotapi.BotAPI
 	log *log.Logger
+	txn *transaction.Transaction
 }
 
-func NewBot(bot *tgbotapi.BotAPI, log *log.Logger) *Bot {
+func NewBot(bot *tgbotapi.BotAPI, log *log.Logger, txn *transaction.Transaction) *Bot {
 	return &Bot{
 		bot: bot,
 		log: log,
+		txn: txn,
 	}
 }
 

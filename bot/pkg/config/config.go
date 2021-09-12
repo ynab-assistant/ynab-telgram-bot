@@ -31,6 +31,7 @@ type MongoConfig struct {
 // TelegramConfig is a configuration for Telegram Bot API
 type TelegramConfig struct {
 	Token string `mapstructure:"token"`
+	Debug bool   `mapstructure:"debug"`
 }
 
 // Init initialize Config struct

@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/oneils/ynab-helper/bot/pkg/smsparser"
+	"github.com/oneils/ynab-helper/bot/pkg/sms"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -47,12 +47,12 @@ func TestParse_happyPath(t *testing.T) {
 	testTable := []struct {
 		name           string
 		smsText        string
-		expectedSmsMsg smsparser.SmsMessage
+		expectedSmsMsg sms.Message
 	}{
 		{
 			name:    "should parse message to struct",
 			smsText: `Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata 38.96 BYN. BLR SHOP SOSEDI.   Spravka: 80171199900`,
-			expectedSmsMsg: smsparser.SmsMessage{
+			expectedSmsMsg: sms.Message{
 				BankName:    "Priorbank",
 				CardNumber:  "4***3345",
 				Currency:    "BYN",
@@ -60,7 +60,10 @@ func TestParse_happyPath(t *testing.T) {
 				CountryCode: "BLR",
 				Payee:       "SHOP SOSEDI",
 				OriginalMsg: "Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata 38.96 BYN. BLR SHOP SOSEDI.   Spravka: 80171199900",
-				Transaction: smsparser.Transaction{
+				Transaction: struct {
+					Date string
+					Type string
+				}{
 					Type: "Oplata",
 					Date: "10-09-2021 15:40:19",
 				},
@@ -69,7 +72,7 @@ func TestParse_happyPath(t *testing.T) {
 		{
 			name:    "should parse message when transaction date is missed",
 			smsText: `Priorbank. Karta 4***3345. Oplata 38.96 BYN. BLR SHOP SOSEDI.   Spravka: 80171199900`,
-			expectedSmsMsg: smsparser.SmsMessage{
+			expectedSmsMsg: sms.Message{
 				BankName:    "Priorbank",
 				CardNumber:  "",
 				Currency:    "BYN",
@@ -77,7 +80,10 @@ func TestParse_happyPath(t *testing.T) {
 				CountryCode: "BLR",
 				Payee:       "SHOP SOSEDI",
 				OriginalMsg: "Priorbank. Karta 4***3345. Oplata 38.96 BYN. BLR SHOP SOSEDI.   Spravka: 80171199900",
-				Transaction: smsparser.Transaction{
+				Transaction: struct {
+					Date string
+					Type string
+				}{
 					Type: "Oplata",
 					Date: "",
 				},
@@ -86,7 +92,7 @@ func TestParse_happyPath(t *testing.T) {
 		{
 			name:    "should parse message to struct when card number is missed",
 			smsText: `Priorbank. Karta 10-09-2021 15:40:19. Oplata 38.96 BYN. BLR SHOP SOSEDI.   Spravka: 80171199900`,
-			expectedSmsMsg: smsparser.SmsMessage{
+			expectedSmsMsg: sms.Message{
 				BankName:    "Priorbank",
 				CardNumber:  "",
 				Currency:    "BYN",
@@ -94,7 +100,10 @@ func TestParse_happyPath(t *testing.T) {
 				CountryCode: "BLR",
 				Payee:       "SHOP SOSEDI",
 				OriginalMsg: "Priorbank. Karta 10-09-2021 15:40:19. Oplata 38.96 BYN. BLR SHOP SOSEDI.   Spravka: 80171199900",
-				Transaction: smsparser.Transaction{
+				Transaction: struct {
+					Date string
+					Type string
+				}{
 					Type: "Oplata",
 					Date: "",
 				},
@@ -103,7 +112,7 @@ func TestParse_happyPath(t *testing.T) {
 		{
 			name:    "should parse message to struct when transaction type is missed",
 			smsText: `Priorbank. Karta 4***3345 10-09-2021 15:40:19. 38.96 BYN. BLR SHOP SOSEDI.   Spravka: 80171199900`,
-			expectedSmsMsg: smsparser.SmsMessage{
+			expectedSmsMsg: sms.Message{
 				BankName:    "Priorbank",
 				CardNumber:  "4***3345",
 				Currency:    "",
@@ -111,7 +120,10 @@ func TestParse_happyPath(t *testing.T) {
 				CountryCode: "BLR",
 				Payee:       "SHOP SOSEDI",
 				OriginalMsg: "Priorbank. Karta 4***3345 10-09-2021 15:40:19. 38.96 BYN. BLR SHOP SOSEDI.   Spravka: 80171199900",
-				Transaction: smsparser.Transaction{
+				Transaction: struct {
+					Date string
+					Type string
+				}{
 					Type: "",
 					Date: "10-09-2021 15:40:19",
 				},
@@ -121,7 +133,7 @@ func TestParse_happyPath(t *testing.T) {
 		{
 			name:    "should parse message to struct when amount is missed",
 			smsText: `Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata BYN. BLR SHOP SOSEDI.   Spravka: 80171199900`,
-			expectedSmsMsg: smsparser.SmsMessage{
+			expectedSmsMsg: sms.Message{
 				BankName:    "Priorbank",
 				CardNumber:  "4***3345",
 				Currency:    "",
@@ -129,7 +141,10 @@ func TestParse_happyPath(t *testing.T) {
 				CountryCode: "BLR",
 				Payee:       "SHOP SOSEDI",
 				OriginalMsg: "Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata BYN. BLR SHOP SOSEDI.   Spravka: 80171199900",
-				Transaction: smsparser.Transaction{
+				Transaction: struct {
+					Date string
+					Type string
+				}{
 					Type: "",
 					Date: "10-09-2021 15:40:19",
 				},
@@ -138,7 +153,7 @@ func TestParse_happyPath(t *testing.T) {
 		{
 			name:    "should parse message to struct when transaction currency is missed",
 			smsText: `Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata 38.96. BLR SHOP SOSEDI.   Spravka: 80171199900`,
-			expectedSmsMsg: smsparser.SmsMessage{
+			expectedSmsMsg: sms.Message{
 				BankName:    "Priorbank",
 				CardNumber:  "4***3345",
 				Currency:    "",
@@ -146,7 +161,10 @@ func TestParse_happyPath(t *testing.T) {
 				CountryCode: "BLR",
 				Payee:       "SHOP SOSEDI",
 				OriginalMsg: "Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata 38.96. BLR SHOP SOSEDI.   Spravka: 80171199900",
-				Transaction: smsparser.Transaction{
+				Transaction: struct {
+					Date string
+					Type string
+				}{
 					Type: "",
 					Date: "10-09-2021 15:40:19",
 				},
@@ -155,7 +173,7 @@ func TestParse_happyPath(t *testing.T) {
 		{
 			name:    "should parse message to struct when payee contry code is missed",
 			smsText: `Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata 38.96 BYN. SHOP SOSEDI.   Spravka: 80171199900`,
-			expectedSmsMsg: smsparser.SmsMessage{
+			expectedSmsMsg: sms.Message{
 				BankName:    "Priorbank",
 				CardNumber:  "4***3345",
 				Currency:    "BYN",
@@ -163,7 +181,10 @@ func TestParse_happyPath(t *testing.T) {
 				CountryCode: "",
 				Payee:       "",
 				OriginalMsg: "Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata 38.96 BYN. SHOP SOSEDI.   Spravka: 80171199900",
-				Transaction: smsparser.Transaction{
+				Transaction: struct {
+					Date string
+					Type string
+				}{
 					Type: "Oplata",
 					Date: "10-09-2021 15:40:19",
 				},
@@ -172,7 +193,7 @@ func TestParse_happyPath(t *testing.T) {
 		{
 			name:    "should parse message to struct when payee contry code and payee has 1 word is missed",
 			smsText: `Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata 38.96 BYN. SHOP.   Spravka: 80171199900`,
-			expectedSmsMsg: smsparser.SmsMessage{
+			expectedSmsMsg: sms.Message{
 				BankName:    "Priorbank",
 				CardNumber:  "4***3345",
 				Currency:    "BYN",
@@ -180,7 +201,10 @@ func TestParse_happyPath(t *testing.T) {
 				CountryCode: "",
 				Payee:       "",
 				OriginalMsg: "Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata 38.96 BYN. SHOP.   Spravka: 80171199900",
-				Transaction: smsparser.Transaction{
+				Transaction: struct {
+					Date string
+					Type string
+				}{
 					Type: "Oplata",
 					Date: "10-09-2021 15:40:19",
 				},
@@ -189,7 +213,7 @@ func TestParse_happyPath(t *testing.T) {
 		{
 			name:    "should parse message to struct when payee name is missed",
 			smsText: `Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata 38.96 BYN. BLR.   Spravka: 80171199900`,
-			expectedSmsMsg: smsparser.SmsMessage{
+			expectedSmsMsg: sms.Message{
 				BankName:    "Priorbank",
 				CardNumber:  "4***3345",
 				Currency:    "BYN",
@@ -197,7 +221,10 @@ func TestParse_happyPath(t *testing.T) {
 				CountryCode: "",
 				Payee:       "",
 				OriginalMsg: "Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata 38.96 BYN. BLR.   Spravka: 80171199900",
-				Transaction: smsparser.Transaction{
+				Transaction: struct {
+					Date string
+					Type string
+				}{
 					Type: "Oplata",
 					Date: "10-09-2021 15:40:19",
 				},
@@ -206,7 +233,7 @@ func TestParse_happyPath(t *testing.T) {
 		{
 			name:    "should parse message to struct when payee name has one word",
 			smsText: `Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata 38.96 BYN. NLD Yandex.Taxi.   Spravka: 80171199900`,
-			expectedSmsMsg: smsparser.SmsMessage{
+			expectedSmsMsg: sms.Message{
 				BankName:    "Priorbank",
 				CardNumber:  "4***3345",
 				Currency:    "BYN",
@@ -214,7 +241,10 @@ func TestParse_happyPath(t *testing.T) {
 				CountryCode: "NLD",
 				Payee:       "Yandex.Taxi",
 				OriginalMsg: "Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata 38.96 BYN. NLD Yandex.Taxi.   Spravka: 80171199900",
-				Transaction: smsparser.Transaction{
+				Transaction: struct {
+					Date string
+					Type string
+				}{
 					Type: "Oplata",
 					Date: "10-09-2021 15:40:19",
 				},
@@ -223,7 +253,7 @@ func TestParse_happyPath(t *testing.T) {
 		{
 			name:    "should parse message to struct when transaction amount is invalid number",
 			smsText: `Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata invalid BYN. BLR SHOP SOSEDI.   Spravka: 80171199900`,
-			expectedSmsMsg: smsparser.SmsMessage{
+			expectedSmsMsg: sms.Message{
 				BankName:    "Priorbank",
 				CardNumber:  "4***3345",
 				Currency:    "BYN",
@@ -231,7 +261,10 @@ func TestParse_happyPath(t *testing.T) {
 				CountryCode: "BLR",
 				Payee:       "SHOP SOSEDI",
 				OriginalMsg: "Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata invalid BYN. BLR SHOP SOSEDI.   Spravka: 80171199900",
-				Transaction: smsparser.Transaction{
+				Transaction: struct {
+					Date string
+					Type string
+				}{
 					Type: "Oplata",
 					Date: "10-09-2021 15:40:19",
 				},

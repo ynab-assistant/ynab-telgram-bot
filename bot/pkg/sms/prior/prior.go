@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/oneils/ynab-helper/bot/pkg/smsparser"
+	"github.com/oneils/ynab-helper/bot/pkg/sms"
 )
 
 const (
@@ -35,12 +35,12 @@ func New(log *log.Logger) *Prior {
 
 // Parse parses the specified text and returns SmsMessage if there are no errors.
 // if a field could not be parsed, it will be set by zero value (empty, 0, etc)
-func (p *Prior) Parse(text string) (smsparser.SmsMessage, error) {
+func (p *Prior) Parse(text string) (sms.Message, error) {
 	if !strings.HasPrefix(text, priorPrefix) {
-		return smsparser.SmsMessage{}, errors.New("SMS either not from Priorbank or format changed")
+		return sms.Message{}, errors.New("SMS either not from Priorbank or format changed")
 	}
 
-	msg := smsparser.SmsMessage{}
+	msg := sms.Message{}
 	chunks := strings.Split(text, ". ")
 
 	// a message from Priorbank should be splited into the following 5 chunks:
@@ -50,7 +50,7 @@ func (p *Prior) Parse(text string) (smsparser.SmsMessage, error) {
 	// BLR SHOP SOSEDI
 	// Spravka: 80171199900
 	if len(chunks) < 5 {
-		return smsparser.SmsMessage{}, errors.New("SMS either not from Priorbank or format changed")
+		return sms.Message{}, errors.New("SMS either not from Priorbank or format changed")
 	}
 
 	msg.BankName = chunks[0]
