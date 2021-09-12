@@ -1,7 +1,7 @@
 .PHONY:
 
 build:
-	go build -o ./bin/bot cmd/bot/main.go
+	go mod download && CGO_ENABLED=0 go build -o ./bin/ynab-bot cmd/bot/main.go
 
  run: build
 	./bin/bot

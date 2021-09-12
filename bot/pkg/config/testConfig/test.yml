@@ -1,0 +1,8 @@
+telegram:
+  token: "1234:abcde"
+
+mongo:
+  name: "some-name"
+  uri: "mongodb://localhost:27017"
+  user: "root"
+  password: "password"
