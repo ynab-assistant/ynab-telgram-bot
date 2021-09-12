@@ -55,20 +55,36 @@ func (p *Prior) Parse(text string) (smsparser.SmsMessage, error) {
 
 	msg.BankName = chunks[0]
 
-	msg.CardNumber = p.parseValue(chunks[1], cardNumberIndx)
-	msg.Transaction.Date = p.parseCompositeValue(chunks[1], transactionDateIndx, transactionTimeIndx)
+	// line with card number and transaction date is valid
+	if lineValid(chunks[1], 4) {
+		msg.CardNumber = p.parseValue(chunks[1], cardNumberIndx)
+		msg.Transaction.Date = p.parseCompositeValue(chunks[1], transactionDateIndx, transactionTimeIndx)
+	}
 
-	// TODO: add validation for chanks lenght. Otherwise it may happen when card number will contain transaction date if kard number is missed.
-	msg.Transaction.Type = p.parseValue(chunks[2], transactionTypeIndx)
-	msg.Amount = p.getAmount(chunks[2], amountIndx)
-	msg.Currency = p.parseValue(chunks[2], currencyIndx)
+	// line with transaction type, amount and currency is valid
+	if lineValid(chunks[2], 3) {
+		msg.Transaction.Type = p.parseValue(chunks[2], transactionTypeIndx)
+		msg.Amount = p.getAmount(chunks[2], amountIndx)
+		msg.Currency = p.parseValue(chunks[2], currencyIndx)
+	}
 
-	msg.CountryCode = p.parseValue(chunks[3], countryCodeIndx)
-	msg.Payee = p.parseCompositeValue(chunks[3], payeeIndx1, payeeIndx2)
+	// line with country code and payee name is valid
+	// BLR SHOP SOSEDI.
+	if lineValid(chunks[3], 2) {
+
+		countryCode, payee := p.getCountryCodeAndPayee(chunks[3], countryCodeIndx)
+
+		msg.CountryCode = countryCode
+		msg.Payee = payee
+	}
 
 	msg.OriginalMsg = text
 
 	return msg, nil
+}
+
+func lineValid(text string, requiredLength int) bool {
+	return len(strings.Split(text, " ")) >= requiredLength
 }
 
 func (p *Prior) parseValue(text string, valueIndex int) string {
@@ -95,4 +111,21 @@ func (p *Prior) getAmount(text string, amountIndx int) float64 {
 		return 0
 	}
 	return amount
+}
+
+func (p *Prior) getCountryCodeAndPayee(text string, countryCodeIndx int) (string, string) {
+	chunks := strings.Split(text, " ")
+	if len(chunks) <= 1 {
+		return "", ""
+	}
+
+	code := chunks[countryCodeIndx]
+	// verify code looks like BLR
+	if len(code) == 3 {
+		// paye may have different words amount in the name
+		payee := strings.Join(chunks[1:], " ")
+
+		return code, payee
+	}
+	return "", ""
 }
