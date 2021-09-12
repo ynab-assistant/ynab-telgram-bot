@@ -28,8 +28,8 @@ type Prior struct {
 	log *log.Logger
 }
 
-// NewPrior creates a new instance of Prior sms parser
-func NewPrior(log *log.Logger) *Prior {
+// New creates a new instance of Prior sms parser
+func New(log *log.Logger) *Prior {
 	return &Prior{log: log}
 }
 
