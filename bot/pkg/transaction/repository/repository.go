@@ -2,8 +2,27 @@ package repository
 
 import (
 	"context"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
 )
+
+// TXNRecord is a new transaction to be saved
+type TXNRecord struct {
+	ID          primitive.ObjectID `bson:"_id,omitempty"`
+	ChatID      int64              `bson:"chatID"`
+	UserName    string             `bson:"userName"`
+	BankName    string             `bson:"bankName"`
+	CardNumber  string             `bson:"cardNumber"`
+	TxnDate     time.Time          `bson:"txnDate"`
+	Type        string             `bson:"type"`
+	Currency    string             `bson:"currency"`
+	Amount      float64            `bson:"amount"`
+	Payee       string             `bson:"payee"`
+	CountryCode string             `bson:"countryCode"`
+	SmsMessage  string             `bson:"smsMessage"`
+	DateCreated time.Time          `bson:"dateCreated"`
+	DateUpdated time.Time          `bson:"dateUpdated"`
+}
 
 // NewTXNRecord is a new transaction to be saved
 type NewTXNRecord struct {
