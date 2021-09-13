@@ -21,3 +21,6 @@ test.coverage.html:
 
 lint:
 	golangci-lint run --config .golangci.yml ./...
+
+generate:
+	go generate ./...

@@ -22,6 +22,7 @@ type NewTXNRecord struct {
 	DateUpdated time.Time `bson:"dateUpdated"`
 }
 
+//go:generate sh -c "mockery --inpackage --name TXNer --print > /tmp/mock.tmp && mv /tmp/mock.tmp txner_mock.go"
 // TXNer a repo for managing NewTXNRecord
 type TXNer interface {
 	Save(ctx context.Context, newTxn *NewTXNRecord) error
@@ -36,6 +37,7 @@ type InvalidSmsRecord struct {
 	SmsMessage  string    `bson:"smsMessage"`
 }
 
+//go:generate sh -c "mockery --inpackage --name InvalidSMSer --print > /tmp/mock.tmp && mv /tmp/mock.tmp invalidSMSer_mock.go"
 // InvalidSMSer a repo for manipulating InvalidSmsRecord.
 type InvalidSMSer interface {
 	Save(ctx context.Context, invalidSMS *InvalidSmsRecord) error
