@@ -4,6 +4,7 @@ run:
     format: tab
   skip-dirs:
     - vendor
+    - platform/database
 
 linters-settings:
   govet:

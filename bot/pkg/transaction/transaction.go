@@ -46,7 +46,7 @@ func (t *Transaction) Save(ctx context.Context, txnMsg TxnMessage, now time.Time
 
 		if saveErr := t.invalidSmsRepo.Save(ctx, &invalidSms); saveErr != nil {
 			t.logger.Printf("[ERROR] can't save invalid sms to the DB. \n\t\tinvalidSMS: %v\n\t\tError: %v", invalidSms, err)
-			return errors.New("can't save invalid SMS to DB.")
+			return errors.New("can't save invalid SMS to DB")
 		}
 
 		return err

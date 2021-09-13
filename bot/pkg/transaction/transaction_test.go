@@ -138,11 +138,11 @@ func TestSave(t *testing.T) {
 		}
 
 		parser.On("Parse", mock.AnythingOfType("string")).Return(sms.Message{}, errors.New("parsing error"))
-		invalidSmsRepo.On("Save", ctx, mock.Anything).Return(errors.New("Some error while saving invalid sms"))
+		invalidSmsRepo.On("Save", ctx, mock.Anything).Return(errors.New("some error while saving invalid sms"))
 
 		result := trans.Save(ctx, txnMsg, now)
 
 		assert.Error(t, result)
-		assert.EqualError(t, result, "can't save invalid SMS to DB.")
+		assert.EqualError(t, result, "can't save invalid SMS to DB")
 	})
 }

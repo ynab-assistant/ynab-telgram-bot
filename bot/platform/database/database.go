@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+// InitDB creates a new MongoDB database for testing purposes
 func InitDB(cfg *config.Config) (*mongo.Database, error) {
 	mongoClient, err := newMongoClient(cfg.Mongo)
 	if err != nil {
