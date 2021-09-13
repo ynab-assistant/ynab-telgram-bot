@@ -22,8 +22,8 @@ func NewMongoTxnRepo(db *mongo.Database) *MongoTxnRepo {
 }
 
 // Save store the specified TXB to the DB
-func (t *MongoTxnRepo) Save(ctx context.Context, newTxn NewTXNRecord) error {
-	_, err := t.collection.InsertOne(ctx, newTxn)
+func (t *MongoTxnRepo) Save(ctx context.Context, newTxn *NewTXNRecord) error {
+	_, err := t.collection.InsertOne(ctx, &newTxn)
 	if err != nil {
 		return err
 	}

@@ -10,7 +10,7 @@ import (
 
 const commandStart = "start"
 
-func (b *Bot) handleMessage(message *tgbotapi.Message) {
+func (b *Bot) handleMessage(message *tgbotapi.Message) error {
 
 	txnMsg := transaction.TxnMessage{
 		ChatID:   message.Chat.ID,
@@ -22,16 +22,16 @@ func (b *Bot) handleMessage(message *tgbotapi.Message) {
 	if err != nil {
 		msg := tgbotapi.NewMessage(message.Chat.ID, err.Error())
 		msg.ReplyToMessageID = message.MessageID
-		b.bot.Send(msg)
-		return
+		_, err = b.bot.Send(msg)
+		return err
 	}
 
-	b.log.Printf("Verification: [%s] %d", message.From.UserName, message.Chat.ID)
+	b.logger.Printf("Verification: [%s] %d", message.From.UserName, message.Chat.ID)
 
 	msg := tgbotapi.NewMessage(message.Chat.ID, "Saved")
-	// msg.ReplyToMessageID = message.MessageID
 
-	b.bot.Send(msg)
+	_, err = b.bot.Send(msg)
+	return err
 }
 
 func (b *Bot) handleCommand(message *tgbotapi.Message) error {

@@ -59,14 +59,14 @@ func (p *Prior) Parse(text string) (sms.Message, error) {
 	// Karta 4***3345 10-09-2021 15:40:19
 	if lineValid(chunks[1], 4) {
 		msg.CardNumber = p.parseValue(chunks[1], cardNumberIndx)
-		msg.Transaction.Date = p.getDate(p.parseCompositeValue(chunks[1], transactionDateIndx, transactionTimeIndx))
+		msg.Transaction.Date = p.parseDate(p.parseCompositeValue(chunks[1], transactionDateIndx, transactionTimeIndx))
 	}
 
 	// line with transaction type, amount and currency is valid
 	// Oplata 38.96 BYN
 	if lineValid(chunks[2], 3) {
 		msg.Transaction.Type = p.parseValue(chunks[2], transactionTypeIndx)
-		msg.Amount = p.getAmount(chunks[2], amountIndx)
+		msg.Amount = p.amount(chunks[2], amountIndx)
 		msg.Currency = p.parseValue(chunks[2], currencyIndx)
 	}
 
@@ -74,7 +74,7 @@ func (p *Prior) Parse(text string) (sms.Message, error) {
 	// BLR SHOP SOSEDI.
 	if lineValid(chunks[3], 2) {
 
-		countryCode, payee := p.getCountryCodeAndPayee(chunks[3], countryCodeIndx)
+		countryCode, payee := p.countryCodeAndPayee(chunks[3], countryCodeIndx)
 
 		msg.CountryCode = countryCode
 		msg.Payee = payee
@@ -105,7 +105,7 @@ func (p *Prior) parseCompositeValue(text string, indx1, indx2 int) string {
 	return fmt.Sprintf("%s %s", chunks[indx1], chunks[indx2])
 }
 
-func (p *Prior) getAmount(text string, amountIndx int) float64 {
+func (p *Prior) amount(text string, amountIndx int) float64 {
 	amountStr := p.parseValue(text, amountIndx)
 	amount, err := strconv.ParseFloat(amountStr, 64)
 	if err != nil {
@@ -115,7 +115,7 @@ func (p *Prior) getAmount(text string, amountIndx int) float64 {
 	return amount
 }
 
-func (p *Prior) getCountryCodeAndPayee(text string, countryCodeIndx int) (string, string) {
+func (p *Prior) countryCodeAndPayee(text string, countryCodeIndx int) (countryCode, payee string) {
 	chunks := strings.Split(text, " ")
 	if len(chunks) <= 1 {
 		return "", ""
@@ -132,7 +132,7 @@ func (p *Prior) getCountryCodeAndPayee(text string, countryCodeIndx int) (string
 	return "", ""
 }
 
-func (p *Prior) getDate(dateStr string) time.Time {
+func (p *Prior) parseDate(dateStr string) time.Time {
 	txnTime, err := time.Parse(dateLayout, dateStr)
 	if err != nil {
 		p.logger.Printf("cant parse date: %v", err)

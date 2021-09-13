@@ -289,10 +289,10 @@ func TestParse_happyPath(t *testing.T) {
 		},
 	}
 
-	log := log.New(os.Stdout, "TEST : ", 0)
+	logger := log.New(os.Stdout, "TEST : ", 0)
 	for _, testCase := range testTable {
 		t.Run(testCase.name, func(t *testing.T) {
-			prior := Prior{log}
+			prior := Prior{logger}
 
 			result, err := prior.Parse(testCase.smsText)
 
@@ -304,17 +304,17 @@ func TestParse_happyPath(t *testing.T) {
 }
 
 func TestParse_factoryFunction(t *testing.T) {
-	log := log.New(os.Stdout, "prefix ", 0)
-	expectedPrior := &Prior{log}
+	logger := log.New(os.Stdout, "prefix ", 0)
+	expectedPrior := &Prior{logger}
 
-	p := New(log)
+	p := New(logger)
 
 	assert.Equal(t, expectedPrior, p)
 }
 
 func Test_parseValue(t *testing.T) {
-	log := log.New(os.Stdout, "prefix ", 0)
-	p := New(log)
+	logger := log.New(os.Stdout, "prefix ", 0)
+	p := New(logger)
 
 	result := p.parseValue("text_without_spaces", 2)
 
@@ -322,18 +322,18 @@ func Test_parseValue(t *testing.T) {
 }
 
 func Test_parseCompositeValue(t *testing.T) {
-	log := log.New(os.Stdout, "prefix ", 0)
-	p := New(log)
+	logger := log.New(os.Stdout, "prefix ", 0)
+	p := New(logger)
 
 	result := p.parseCompositeValue("text_without_spaces", 2, 3)
 
 	assert.Empty(t, result)
 }
 func Test_getCountryCodeAndPayee(t *testing.T) {
-	log := log.New(os.Stdout, "prefix ", 0)
-	p := New(log)
+	logger := log.New(os.Stdout, "prefix ", 0)
+	p := New(logger)
 
-	code, payee := p.getCountryCodeAndPayee("text", 4)
+	code, payee := p.countryCodeAndPayee("text", 4)
 
 	assert.Empty(t, code)
 	assert.Empty(t, payee)

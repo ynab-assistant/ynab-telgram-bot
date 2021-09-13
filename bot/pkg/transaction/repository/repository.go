@@ -24,7 +24,7 @@ type NewTXNRecord struct {
 
 // TXNer a repo for managing NewTXNRecord
 type TXNer interface {
-	Save(ctx context.Context, newTxn NewTXNRecord) error
+	Save(ctx context.Context, newTxn *NewTXNRecord) error
 }
 
 // InvalidSmsRecord represents a full SMS message that was not parsed successfully

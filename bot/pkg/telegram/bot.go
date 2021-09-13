@@ -7,20 +7,23 @@ import (
 	"github.com/oneils/ynab-helper/bot/pkg/transaction"
 )
 
+// Bot contains required dependencies for running Telegram Bot
 type Bot struct {
-	bot *tgbotapi.BotAPI
-	log *log.Logger
-	txn *transaction.Transaction
+	bot    *tgbotapi.BotAPI
+	logger *log.Logger
+	txn    *transaction.Transaction
 }
 
-func NewBot(bot *tgbotapi.BotAPI, log *log.Logger, txn *transaction.Transaction) *Bot {
+// NewBot a helper for creating a Bot
+func NewBot(bot *tgbotapi.BotAPI, logger *log.Logger, txn *transaction.Transaction) *Bot {
 	return &Bot{
-		bot: bot,
-		log: log,
-		txn: txn,
+		bot:    bot,
+		logger: logger,
+		txn:    txn,
 	}
 }
 
+// Start runs the Bot and handles updates from the Bot
 func (b *Bot) Start() error {
 
 	updates := b.initUpdatesChannel()
@@ -38,17 +41,19 @@ func (b *Bot) handleUdate(updates tgbotapi.UpdatesChannel) {
 
 		if update.Message.IsCommand() {
 			if err := b.handleCommand(update.Message); err != nil {
-				b.log.Printf("error while handling a command: %s. Error: %v", update.Message.Command(), err)
+				b.logger.Printf("error while handling a command: %s. Error: %v", update.Message.Command(), err)
 			}
 			continue
 		}
 
-		b.handleMessage(update.Message)
+		if err := b.handleMessage(update.Message); err != nil {
+			b.logger.Printf("cant handle Telegram API message. Error: %v", err)
+		}
 	}
 }
 
 func (b *Bot) initUpdatesChannel() tgbotapi.UpdatesChannel {
-	b.log.Printf("Authorized on account %s", b.bot.Self.UserName)
+	b.logger.Printf("Authorized on account %s", b.bot.Self.UserName)
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60

@@ -21,9 +21,9 @@ type Transaction struct {
 }
 
 // New creates a Transaction
-func New(log *log.Logger, parser sms.Parser, txnRepository repository.TXNer, invalidSmsRepo repository.InvalidSMSer) *Transaction {
+func New(logger *log.Logger, parser sms.Parser, txnRepository repository.TXNer, invalidSmsRepo repository.InvalidSMSer) *Transaction {
 	return &Transaction{
-		logger:         log,
+		logger:         logger,
 		parser:         parser,
 		txnRepo:        txnRepository,
 		invalidSmsRepo: invalidSmsRepo,
@@ -40,8 +40,8 @@ func (t *Transaction) Save(ctx context.Context, txnMsg TxnMessage, now time.Time
 			ChatID:      txnMsg.ChatID,
 			UserName:    txnMsg.UserName,
 			SmsMessage:  txnMsg.Text,
-			DateCreated: time.Now(),
-			DateUpdated: time.Now(),
+			DateCreated: now,
+			DateUpdated: now,
 		}
 
 		if saveErr := t.invalidSmsRepo.Save(ctx, &invalidSms); saveErr != nil {
@@ -66,7 +66,7 @@ func (t *Transaction) Save(ctx context.Context, txnMsg TxnMessage, now time.Time
 		DateCreated: time.Now(),
 		DateUpdated: time.Now(),
 	}
-	err = t.txnRepo.Save(ctx, newTxn)
+	err = t.txnRepo.Save(ctx, &newTxn)
 	if err != nil {
 		return errors.Wrap(err, "can't save transaction to DB")
 	}
