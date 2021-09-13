@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+
+  mongo:
+    image: mongo
+    container_name: "ynab-helper-mongo"
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    env_file:
+      ./.env
+    volumes:
+      - $HOME/data/mongo-data:/data/db/ynab-helper
+      - $HOME/data/mongo-bkp:/data/bkp/ynab-helper
+    restart: always
+
