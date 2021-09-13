@@ -18,3 +18,6 @@ test.coverage:
 
 test.coverage.html:
 	go tool cover -html=cover.out
+
+lint:
+	golangci-lint run --config .golangci.yml ./...

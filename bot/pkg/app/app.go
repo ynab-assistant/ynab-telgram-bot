@@ -20,38 +20,38 @@ import (
 
 // Run starts the application
 func Run(configPath string) {
-	log := log.New(os.Stdout, "BOT : ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
+	logger := log.New(os.Stdout, "BOT : ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
 
 	cfg, err := config.Init(configPath)
 	if err != nil {
-		log.Fatal("cant init configuration for the app")
+		logger.Fatal("cant init configuration for the app")
 	}
 
-	tgbotapi, err := tgbotapi.NewBotAPI(cfg.Telegram.Token)
+	botAPI, err := tgbotapi.NewBotAPI(cfg.Telegram.Token)
 	if err != nil {
-		log.Fatal("error while creating Telegram Bot API: ", err)
+		logger.Fatal("error while creating Telegram Bot API: ", err)
 	}
-	tgbotapi.Debug = cfg.Telegram.Debug
+	botAPI.Debug = cfg.Telegram.Debug
 
 	db, err := initDB(cfg)
 	if err != nil {
-		log.Fatal("cant create MongoDB client", err)
+		logger.Fatal("cant create MongoDB client", err)
 	}
 
-	parser := prior.New(log)
-	txnRepo := repository.NewTxnRepo(db)
-	invalidSmsRepo := repository.NewInvalidSmsRepo(db)
-	txn := transaction.New(log, parser, txnRepo, invalidSmsRepo)
+	parser := prior.New(logger)
+	txnRepo := repository.NewMongoTxnRepo(db)
+	invalidSmsRepo := repository.NewMongoInvalidSmsRepo(db)
+	txn := transaction.New(logger, parser, txnRepo, invalidSmsRepo)
 
-	bot := telegram.NewBot(tgbotapi, log, txn)
+	bot := telegram.NewBot(botAPI, logger, txn)
 
 	if err := bot.Start(); err != nil {
-		log.Fatalf(" error while starting the bot: %v", err)
+		logger.Fatalf(" error while starting the bot: %v", err)
 	}
 }
 
 func initDB(cfg *config.Config) (*mongo.Database, error) {
-	mongoClient, err := NewMongoClient(cfg.Mongo)
+	mongoClient, err := newMongoClient(cfg.Mongo)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func initDB(cfg *config.Config) (*mongo.Database, error) {
 	return mongoClient.Database(cfg.Mongo.Name), nil
 }
 
-func NewMongoClient(cfg config.MongoConfig) (*mongo.Client, error) {
+func newMongoClient(cfg config.MongoConfig) (*mongo.Client, error) {
 
 	credential := options.Credential{
 		Username: cfg.User,

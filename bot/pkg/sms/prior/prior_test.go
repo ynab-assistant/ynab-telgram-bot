@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/oneils/ynab-helper/bot/pkg/sms"
 	"github.com/stretchr/testify/assert"
@@ -44,6 +45,8 @@ func TestParse_verifyErrors(t *testing.T) {
 }
 func TestParse_happyPath(t *testing.T) {
 
+	txnTime, _ := time.Parse(dateLayout, "10-09-2021 15:40:19")
+
 	testTable := []struct {
 		name           string
 		smsText        string
@@ -61,11 +64,11 @@ func TestParse_happyPath(t *testing.T) {
 				Payee:       "SHOP SOSEDI",
 				OriginalMsg: "Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata 38.96 BYN. BLR SHOP SOSEDI.   Spravka: 80171199900",
 				Transaction: struct {
-					Date string
+					Date time.Time
 					Type string
 				}{
 					Type: "Oplata",
-					Date: "10-09-2021 15:40:19",
+					Date: txnTime,
 				},
 			},
 		},
@@ -81,11 +84,10 @@ func TestParse_happyPath(t *testing.T) {
 				Payee:       "SHOP SOSEDI",
 				OriginalMsg: "Priorbank. Karta 4***3345. Oplata 38.96 BYN. BLR SHOP SOSEDI.   Spravka: 80171199900",
 				Transaction: struct {
-					Date string
+					Date time.Time
 					Type string
 				}{
 					Type: "Oplata",
-					Date: "",
 				},
 			},
 		},
@@ -101,11 +103,29 @@ func TestParse_happyPath(t *testing.T) {
 				Payee:       "SHOP SOSEDI",
 				OriginalMsg: "Priorbank. Karta 10-09-2021 15:40:19. Oplata 38.96 BYN. BLR SHOP SOSEDI.   Spravka: 80171199900",
 				Transaction: struct {
-					Date string
+					Date time.Time
 					Type string
 				}{
 					Type: "Oplata",
-					Date: "",
+				},
+			},
+		},
+		{
+			name:    "should parse message to struct when invalid date",
+			smsText: `Priorbank. Karta 4***3345 10-09-2021_invalid 15:40:19_invalid. Oplata 38.96 BYN. BLR SHOP SOSEDI.   Spravka: 80171199900`,
+			expectedSmsMsg: sms.Message{
+				BankName:    "Priorbank",
+				CardNumber:  "4***3345",
+				Currency:    "BYN",
+				Amount:      38.96,
+				CountryCode: "BLR",
+				Payee:       "SHOP SOSEDI",
+				OriginalMsg: "Priorbank. Karta 4***3345 10-09-2021_invalid 15:40:19_invalid. Oplata 38.96 BYN. BLR SHOP SOSEDI.   Spravka: 80171199900",
+				Transaction: struct {
+					Date time.Time
+					Type string
+				}{
+					Type: "Oplata",
 				},
 			},
 		},
@@ -121,11 +141,10 @@ func TestParse_happyPath(t *testing.T) {
 				Payee:       "SHOP SOSEDI",
 				OriginalMsg: "Priorbank. Karta 4***3345 10-09-2021 15:40:19. 38.96 BYN. BLR SHOP SOSEDI.   Spravka: 80171199900",
 				Transaction: struct {
-					Date string
+					Date time.Time
 					Type string
 				}{
-					Type: "",
-					Date: "10-09-2021 15:40:19",
+					Date: txnTime,
 				},
 			},
 		},
@@ -142,11 +161,10 @@ func TestParse_happyPath(t *testing.T) {
 				Payee:       "SHOP SOSEDI",
 				OriginalMsg: "Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata BYN. BLR SHOP SOSEDI.   Spravka: 80171199900",
 				Transaction: struct {
-					Date string
+					Date time.Time
 					Type string
 				}{
-					Type: "",
-					Date: "10-09-2021 15:40:19",
+					Date: txnTime,
 				},
 			},
 		},
@@ -162,11 +180,10 @@ func TestParse_happyPath(t *testing.T) {
 				Payee:       "SHOP SOSEDI",
 				OriginalMsg: "Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata 38.96. BLR SHOP SOSEDI.   Spravka: 80171199900",
 				Transaction: struct {
-					Date string
+					Date time.Time
 					Type string
 				}{
-					Type: "",
-					Date: "10-09-2021 15:40:19",
+					Date: txnTime,
 				},
 			},
 		},
@@ -182,11 +199,11 @@ func TestParse_happyPath(t *testing.T) {
 				Payee:       "",
 				OriginalMsg: "Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata 38.96 BYN. SHOP SOSEDI.   Spravka: 80171199900",
 				Transaction: struct {
-					Date string
+					Date time.Time
 					Type string
 				}{
 					Type: "Oplata",
-					Date: "10-09-2021 15:40:19",
+					Date: txnTime,
 				},
 			},
 		},
@@ -202,11 +219,11 @@ func TestParse_happyPath(t *testing.T) {
 				Payee:       "",
 				OriginalMsg: "Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata 38.96 BYN. SHOP.   Spravka: 80171199900",
 				Transaction: struct {
-					Date string
+					Date time.Time
 					Type string
 				}{
 					Type: "Oplata",
-					Date: "10-09-2021 15:40:19",
+					Date: txnTime,
 				},
 			},
 		},
@@ -222,11 +239,11 @@ func TestParse_happyPath(t *testing.T) {
 				Payee:       "",
 				OriginalMsg: "Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata 38.96 BYN. BLR.   Spravka: 80171199900",
 				Transaction: struct {
-					Date string
+					Date time.Time
 					Type string
 				}{
 					Type: "Oplata",
-					Date: "10-09-2021 15:40:19",
+					Date: txnTime,
 				},
 			},
 		},
@@ -242,11 +259,11 @@ func TestParse_happyPath(t *testing.T) {
 				Payee:       "Yandex.Taxi",
 				OriginalMsg: "Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata 38.96 BYN. NLD Yandex.Taxi.   Spravka: 80171199900",
 				Transaction: struct {
-					Date string
+					Date time.Time
 					Type string
 				}{
 					Type: "Oplata",
-					Date: "10-09-2021 15:40:19",
+					Date: txnTime,
 				},
 			},
 		},
@@ -262,11 +279,11 @@ func TestParse_happyPath(t *testing.T) {
 				Payee:       "SHOP SOSEDI",
 				OriginalMsg: "Priorbank. Karta 4***3345 10-09-2021 15:40:19. Oplata invalid BYN. BLR SHOP SOSEDI.   Spravka: 80171199900",
 				Transaction: struct {
-					Date string
+					Date time.Time
 					Type string
 				}{
 					Type: "Oplata",
-					Date: "10-09-2021 15:40:19",
+					Date: txnTime,
 				},
 			},
 		},

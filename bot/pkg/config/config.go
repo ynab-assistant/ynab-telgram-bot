@@ -60,7 +60,7 @@ func populateDefaults() {
 
 func parseConfigFile(filePath string) error {
 
-	// TODO: should parse file from any specified palce
+	// TODO: should parse file from any specified place
 
 	path := strings.Split(filePath, "/")
 

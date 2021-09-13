@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// NewTXN is a new transaction to be saved
+// NewTXNRecord is a new transaction to be saved
 type NewTXNRecord struct {
 	ChatID      int64     `bson:"chatID"`
 	UserName    string    `bson:"userName"`
@@ -22,8 +22,8 @@ type NewTXNRecord struct {
 	DateUpdated time.Time `bson:"dateUpdated"`
 }
 
-// TxnRepository a repo for managing NewTXNRecord
-type TxnRepository interface {
+// TXNer a repo for managing NewTXNRecord
+type TXNer interface {
 	Save(ctx context.Context, newTxn NewTXNRecord) error
 }
 
@@ -36,7 +36,7 @@ type InvalidSmsRecord struct {
 	SmsMessage  string    `bson:"smsMessage"`
 }
 
-// InvalidSmsRepository a repo for manipulating InvalidSmsRecord.
-type InvalidSmsRepository interface {
-	Save(ctx context.Context, invalidSMS InvalidSmsRecord) error
+// InvalidSMSer a repo for manipulating InvalidSmsRecord.
+type InvalidSMSer interface {
+	Save(ctx context.Context, invalidSMS *InvalidSmsRecord) error
 }

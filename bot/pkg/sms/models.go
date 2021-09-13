@@ -1,11 +1,13 @@
 package sms
 
+import "time"
+
 // Message represents SMS message from a bank.
 type Message struct {
 	BankName    string
 	CardNumber  string
 	Transaction struct {
-		Date string
+		Date time.Time
 		Type string
 	}
 	Currency    string

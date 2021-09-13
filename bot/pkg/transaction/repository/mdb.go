@@ -11,18 +11,18 @@ const (
 	invalidSMSCollection = "invalidSMS"
 )
 
-// TxnRepo is MongoDB repository for working with Transaction
-type TxnRepo struct {
+// MongoTxnRepo is MongoDB repository for working with Transaction
+type MongoTxnRepo struct {
 	collection *mongo.Collection
 }
 
-// NewTxnRepo creates a new TxnRepo
-func NewTxnRepo(db *mongo.Database) *TxnRepo {
-	return &TxnRepo{collection: db.Collection(txnCollection)}
+// NewMongoTxnRepo creates a new TxnRepo
+func NewMongoTxnRepo(db *mongo.Database) *MongoTxnRepo {
+	return &MongoTxnRepo{collection: db.Collection(txnCollection)}
 }
 
 // Save store the specified TXB to the DB
-func (t *TxnRepo) Save(ctx context.Context, newTxn NewTXNRecord) error {
+func (t *MongoTxnRepo) Save(ctx context.Context, newTxn NewTXNRecord) error {
 	_, err := t.collection.InsertOne(ctx, newTxn)
 	if err != nil {
 		return err
@@ -31,17 +31,18 @@ func (t *TxnRepo) Save(ctx context.Context, newTxn NewTXNRecord) error {
 	return nil
 }
 
-type InvalidSmsRepo struct {
+// MongoInvalidSmsRepo is a repository for manipulating of invalid SMS messages that could not be parsed
+type MongoInvalidSmsRepo struct {
 	collection *mongo.Collection
 }
 
-func NewInvalidSmsRepo(db *mongo.Database) *InvalidSmsRepo {
-	return &InvalidSmsRepo{
-		collection: db.Collection(invalidSMSCollection),
-	}
+// NewMongoInvalidSmsRepo creates a new InvalidSmsRepo
+func NewMongoInvalidSmsRepo(db *mongo.Database) *MongoInvalidSmsRepo {
+	return &MongoInvalidSmsRepo{collection: db.Collection(invalidSMSCollection)}
 }
 
-func (i *InvalidSmsRepo) Save(ctx context.Context, invalidSMS InvalidSmsRecord) error {
+// Save stores invalid sms that were not parsed or processed correctly
+func (i *MongoInvalidSmsRepo) Save(ctx context.Context, invalidSMS *InvalidSmsRecord) error {
 	_, err := i.collection.InsertOne(ctx, invalidSMS)
 	if err != nil {
 		return err

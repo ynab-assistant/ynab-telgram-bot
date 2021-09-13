@@ -6,31 +6,31 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/oneils/ynab-helper/bot/pkg/sms"
 )
 
 const (
 	priorPrefix         = "Priorbank"
+	dateLayout          = "02-01-2006 15:04:05"
 	cardNumberIndx      = 1
 	transactionTypeIndx = 0
 	transactionDateIndx = 2
 	transactionTimeIndx = 3
 	currencyIndx        = 2
 	countryCodeIndx     = 0
-	payeeIndx1          = 1
-	payeeIndx2          = 2
 	amountIndx          = 1
 )
 
 // Prior is an implementation of SMS Parser for Priorbank
 type Prior struct {
-	log *log.Logger
+	logger *log.Logger
 }
 
 // New creates a new instance of Prior sms parser
-func New(log *log.Logger) *Prior {
-	return &Prior{log: log}
+func New(logger *log.Logger) *Prior {
+	return &Prior{logger: logger}
 }
 
 // Parse parses the specified text and returns SmsMessage if there are no errors.
@@ -59,7 +59,7 @@ func (p *Prior) Parse(text string) (sms.Message, error) {
 	// Karta 4***3345 10-09-2021 15:40:19
 	if lineValid(chunks[1], 4) {
 		msg.CardNumber = p.parseValue(chunks[1], cardNumberIndx)
-		msg.Transaction.Date = p.parseCompositeValue(chunks[1], transactionDateIndx, transactionTimeIndx)
+		msg.Transaction.Date = p.getDate(p.parseCompositeValue(chunks[1], transactionDateIndx, transactionTimeIndx))
 	}
 
 	// line with transaction type, amount and currency is valid
@@ -109,7 +109,7 @@ func (p *Prior) getAmount(text string, amountIndx int) float64 {
 	amountStr := p.parseValue(text, amountIndx)
 	amount, err := strconv.ParseFloat(amountStr, 64)
 	if err != nil {
-		p.log.Printf("cant parse a line for transaction amount\n\t\tInvalid text:%s. err: %v", text, err)
+		p.logger.Printf("cant parse a line for transaction amount\n\t\tInvalid text:%s. err: %v", text, err)
 		return 0
 	}
 	return amount
@@ -130,4 +130,12 @@ func (p *Prior) getCountryCodeAndPayee(text string, countryCodeIndx int) (string
 		return code, payee
 	}
 	return "", ""
+}
+
+func (p *Prior) getDate(dateStr string) time.Time {
+	txnTime, err := time.Parse(dateLayout, dateStr)
+	if err != nil {
+		p.logger.Printf("cant parse date: %v", err)
+	}
+	return txnTime
 }
