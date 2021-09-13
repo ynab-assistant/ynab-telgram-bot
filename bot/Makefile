@@ -4,7 +4,7 @@ build:
 	go mod download && CGO_ENABLED=0 go build -o ./bin/ynab-bot cmd/bot/main.go
 
  run: build
-	./bin/bot
+	./bin/ynab-bot
 
 tidy:
 	go mod tidy
@@ -18,3 +18,9 @@ test.coverage:
 
 test.coverage.html:
 	go tool cover -html=cover.out
+
+lint:
+	golangci-lint run --config .golangci.yml ./...
+
+generate:
+	go generate ./...
