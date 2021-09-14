@@ -1,0 +1,36 @@
+FROM golang:1.17 as build_ynab-bot
+ENV CGO_ENABLED 0
+ARG VCS_REF
+
+# Create a location in the container for the source code. Using the
+# default GOPATH location.
+RUN mkdir -p /build/ynab-bot
+
+
+COPY . /build/ynab-bot
+WORKDIR /build/ynab-bot
+
+RUN go mod download
+
+
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-X main.build=${VCS_REF}" -o ./bin/ynab-bot ./cmd/bot/main.go
+
+
+# Run the Go Binary in Alpine.
+FROM alpine:3.13
+ARG BUILD_DATE
+ARG VCS_REF
+
+WORKDIR /srv
+
+COPY --from=build_ynab-bot /build/ynab-bot/bin/ynab-bot /srv/bot
+COPY --from=build_ynab-bot /build/ynab-bot/configs /srv/configs/
+
+CMD ["/srv/bot"]
+
+LABEL org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.title="ynab-bot" \
+      org.opencontainers.image.authors="Alexey Bogdanov <lex.nox@gmail.com>" \
+      org.opencontainers.image.source="https://github.com/ynab-assistant/ynab-telgram-bot" \
+      org.opencontainers.image.revision="${VCS_REF}" \
+      org.opencontainers.image.vendor="Alexey Bogdanov"

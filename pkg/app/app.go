@@ -19,8 +19,10 @@ import (
 )
 
 // Run starts the application
-func Run(configPath string) {
+func Run(configPath string, build string) {
 	logger := log.New(os.Stdout, "BOT : ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
+
+	logger.Printf("running build %s", build)
 
 	cfg, err := config.Init(configPath)
 	if err != nil {
