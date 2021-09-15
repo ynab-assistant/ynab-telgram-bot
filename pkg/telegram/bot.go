@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"context"
 	"log"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -30,6 +31,11 @@ func (b *Bot) Start() error {
 
 	b.handleUdate(updates)
 
+	return nil
+}
+
+// Start runs the Bot and handles updates from the Bot
+func (b *Bot) Shutdown(ctx context.Context) error {
 	return nil
 }
 

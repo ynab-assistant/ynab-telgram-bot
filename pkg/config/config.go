@@ -2,12 +2,18 @@ package config
 
 import (
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )
 
 const (
+	defaultHTTPPort        = 5000
+	defaultReadTimeout     = 5 * time.Second
+	defaultWriteTimeout    = 5 * time.Second
+	defaultShutdownTimeout = 5 * time.Second
+
 	defaultMogoDBName    = "ynab-helper"
 	defaultMongoURI      = "mongodb://mongo:27017"
 	defaultMongoUser     = "root"
@@ -16,8 +22,17 @@ const (
 
 // Config is application configuration
 type Config struct {
+	HTTP     HTTPConfig
 	Telegram TelegramConfig
 	Mongo    MongoConfig
+}
+
+// HTTPConfig is web related configuration
+type HTTPConfig struct {
+	Port            string        `mapstructure:"port"`
+	ReadTimeout     time.Duration `mapstructure:"readTimeOut"`
+	WriteTimeout    time.Duration `mapstructure:"writeTimeOut"`
+	ShutdownTimeout time.Duration `mapstructure:"shutdownTimeout"`
 }
 
 // MongoConfig is a configuration for connecting to a MongoDB
@@ -52,6 +67,11 @@ func Init(configPath string) (*Config, error) {
 }
 
 func populateDefaults() {
+	viper.SetDefault("http.port", defaultHTTPPort)
+	viper.SetDefault("http.readTimeOut", defaultReadTimeout)
+	viper.SetDefault("http.writeTimeOut", defaultWriteTimeout)
+	viper.SetDefault("http.shutdownTimeout", defaultShutdownTimeout)
+
 	viper.SetDefault("mongo.name", defaultMogoDBName)
 	viper.SetDefault("mongo.uri", defaultMongoURI)
 	viper.SetDefault("mongo.user", defaultMongoUser)
@@ -60,11 +80,11 @@ func populateDefaults() {
 
 func parseConfigFile(filePath string) error {
 
-	// TODO: should parse file from any specified place
-
 	path := strings.Split(filePath, "/")
+	if len(path) < 2 {
+		return errors.New("invalid path to the configuration file. Should contain '/'")
+	}
 
-	// TODO: validation should be added in order do not panic
 	viper.AddConfigPath(path[0])
 	viper.SetConfigName(path[1])
 
@@ -72,6 +92,10 @@ func parseConfigFile(filePath string) error {
 }
 
 func unmarshal(cfg *Config) error {
+	if err := viper.UnmarshalKey("http", &cfg.HTTP); err != nil {
+		return errors.Wrap(err, "config.unmarshal() Web ")
+	}
+
 	if err := viper.UnmarshalKey("telegram", &cfg.Telegram); err != nil {
 		return errors.Wrap(err, "config.unmarshal() telegram ")
 	}

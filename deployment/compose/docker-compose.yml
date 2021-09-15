@@ -1,9 +1,18 @@
 version: '3.8'
 
 services:
+  ynab-bot:
+    image: telegram-bot-amd64:1.0
+    container_name: "ynab-bot"
+    hostname: "ynab-bot"
+    restart: always
+    ports:
+      - "5001:5001"
+    depends_on:
+      - mongo
 
   mongo:
-    image: mongo
+    image: mongo:4.2
     container_name: "ynab-helper-mongo"
     ports:
       - "27017:27017"
