@@ -1,6 +1,9 @@
 package main
 
 import (
+	"log"
+	"os"
+
 	"github.com/oneils/ynab-helper/bot/pkg/app"
 )
 
@@ -10,5 +13,10 @@ const configPath = "configs/main"
 var build = "develop"
 
 func main() {
-	app.Run(configPath, build)
+	logger := log.New(os.Stdout, "BOT : ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
+
+	if err := app.Run(logger, configPath, build); err != nil {
+		log.Println("main: error:", err)
+		os.Exit(1)
+	}
 }

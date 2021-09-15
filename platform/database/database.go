@@ -2,12 +2,14 @@ package database
 
 import (
 	"context"
+	"time"
+
 	"github.com/oneils/ynab-helper/bot/pkg/config"
 	"github.com/pkg/errors"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
-	"time"
 )
 
 // InitDB creates a new MongoDB database for testing purposes
@@ -43,4 +45,28 @@ func newMongoClient(cfg config.MongoConfig) (*mongo.Client, error) {
 	}
 
 	return client, nil
+}
+
+// StatusCheck returns nil if it can successfully talk to the database. It
+// returns a non-nil error otherwise.
+func StatusCheck(ctx context.Context, db *mongo.Database) error {
+
+	// Run a simple query to determine connectivity. The db has a "Ping" method
+	// but it can false-positive when it was previously able to talk to the
+	// database but the database has since gone away. Running this query forces a
+	// round trip to the database.
+	// db.runCommand( { serverStatus: 1 } ).ok
+	var dbStatus struct{
+		Ok int `bson:"ok"`
+	}
+
+	// TODO: verify it works as expected
+	if err:= db.RunCommand(ctx, bson.M{"serverStatus": 1}).Decode(&dbStatus); err != nil {
+		return err
+	}
+
+	if dbStatus.Ok != 1 {
+		return errors.New("mongoDB is not ready")
+	}
+	return nil
 }

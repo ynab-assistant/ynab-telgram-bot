@@ -1,7 +1,12 @@
+http:
+  port: 5001
+  readTimeOut: 10s
+  writeTimeOut: 10s
+  shutdownTimeout: 10s
+
 telegram:
   token: "TOKEN"
   debug: true
-
 
 mongo:
   name: "ynab-helper"

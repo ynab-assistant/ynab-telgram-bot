@@ -3,6 +3,7 @@ module github.com/oneils/ynab-helper/bot
 go 1.17
 
 require (
+	github.com/dimfeld/httptreemux v5.0.1+incompatible
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.0.0-rc1
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.8.1
