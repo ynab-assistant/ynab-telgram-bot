@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo
+spec:
+  selector:
+    matchLabels:
+      app: mongo
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      containers:
+      - name: mongo
+        image: mongo:4.2
+        imagePullPolicy: Always
+        env:
+        - name: MONGO_USER
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: db_user
+        - name: MONGO_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: db_password
+        ports:
+        - name: mongo
+          containerPort: 27017
+        livenessProbe:
+          exec:
+            command:
+              - mongo
+              - --eval
+              - db.adminCommand('ping')
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+          initialDelaySeconds: 45
+        readinessProbe:
+          exec:
+            command:
+              - mongo
+              - --eval
+              - db.adminCommand('ping')
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  labels:
+    name: mongo
+spec:
+  ports:
+    - name: mongo
+      port: 27017
+      targetPort: mongo
+  selector:
+    name: mongo
