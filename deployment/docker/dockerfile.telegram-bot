@@ -12,7 +12,7 @@ WORKDIR /build/ynab-bot
 
 RUN go mod download
 
-
+# TODO: move GOOS and GOARCH to argument. So that it can be passed during the build on different ENVs
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-X main.build=${VCS_REF}" -o ./bin/ynab-bot ./cmd/bot/main.go
 
 

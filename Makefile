@@ -26,7 +26,7 @@ generate:
 	go generate ./...
 
 
-bot:
+bot-docker:
 	docker build \
 		-f deployment/docker/dockerfile.telegram-bot \
 		-t telegram-bot-amd64:1.0 \
