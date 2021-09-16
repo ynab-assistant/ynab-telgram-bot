@@ -29,7 +29,7 @@ generate:
 bot-docker:
 	docker build \
 		-f deployment/docker/dockerfile.telegram-bot \
-		-t telegram-bot-amd64:1.0 \
+		-t ghcr.io/ynab-assistant/ynab-bot-amd64:1.0 \
 		--build-arg VCS_REF=`git rev-parse HEAD` \
 		--build-arg BUILD_DATE=`date -u +”%Y-%m-%dT%H:%M:%SZ”` \
 		.
